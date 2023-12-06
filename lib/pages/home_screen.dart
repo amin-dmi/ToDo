@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:todo/constant.dart';
+import 'package:todo/controllers/task_controller.dart';
+import 'package:todo/controllers/textfield_controller.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -32,6 +34,10 @@ class MyFloatingActionButton extends StatelessWidget {
     return FloatingActionButton(
       heroTag: 'hero',
       onPressed: () {
+        Get.find<TaskController>().isEditing = false;
+        Get.find<TextFieldController>().taskTitle!.text = "";
+        Get.find<TextFieldController>().taskSubTitle!.text = "";
+
         Get.toNamed('/addscreen');
       },
       child: Icon(Icons.add),
@@ -60,27 +66,47 @@ class BottomSectionWidget extends StatelessWidget {
       ),
       child: Container(
         margin: const EdgeInsets.only(left: 50, top: 20, right: 10),
-        child: ListView.separated(
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text('Title'),
-                subtitle: const Text('subTitle'),
-                onTap: () {},
-                trailing: Checkbox(
-                  side: const BorderSide(color: Colors.black45, width: 1.5),
-                  activeColor: kLightBlueColor,
-                  onChanged: (Value) {},
-                  value: true,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
+        child: Obx(() {
+          return ListView.separated(
+              itemBuilder: (context, index) {
+                var task = Get.find<TaskController>().tasks[index];
+
+                return ListTile(
+                  onLongPress: () {
+                    Get.find<TaskController>().tasks.removeAt(index);
+                  },
+                  title: Text(task.taskTitle ?? ''),
+                  subtitle: Text(task.taskSubtitle ?? ''),
+                  onTap: () {
+                    Get.find<TaskController>().index = index;
+                    Get.find<TaskController>().isEditing = true;
+                    Get.find<TextFieldController>().taskTitle!.text =
+                        task.taskTitle!;
+
+                    Get.find<TextFieldController>().taskSubTitle!.text =
+                        task.taskSubtitle!;
+
+                    Get.toNamed('/addscreen');
+                  },
+                  trailing: Checkbox(
+                    side: const BorderSide(color: Colors.black45, width: 1.5),
+                    activeColor: kLightBlueColor,
+                    onChanged: (Value) {
+                      task.status = !task.status!;
+                      Get.find<TaskController>().tasks[index] = task;
+                    },
+                    value: task.status,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
-                ),
-              );
-            },
-            separatorBuilder: (context, index) {
-              return Divider(color: Colors.black, height: 1.5);
-            },
-            itemCount: 100),
+                );
+              },
+              separatorBuilder: (context, index) {
+                return Divider(color: Colors.black, height: 1.5);
+              },
+              itemCount: Get.find<TaskController>().tasks.length);
+        }),
       ),
     );
   }
@@ -143,10 +169,12 @@ class TopSectionWidget extends StatelessWidget {
           ),
           Container(
             margin: EdgeInsets.only(left: 50, top: 5),
-            child: const Text(
-              'Tasks',
-              style: TextStyle(fontSize: 18, color: Colors.white),
-            ),
+            child: Obx(() {
+              return Text(
+                '${Get.find<TaskController>().tasks.length} Tasks',
+                style: const TextStyle(fontSize: 18, color: Colors.white),
+              );
+            }),
           )
         ],
       ),
