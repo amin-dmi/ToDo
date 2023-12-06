@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:todo/constant.dart';
 import 'package:todo/controllers/task_controller.dart';
@@ -70,10 +71,20 @@ class BottomSectionWidget extends StatelessWidget {
           return ListView.separated(
               itemBuilder: (context, index) {
                 var task = Get.find<TaskController>().tasks[index];
-
                 return ListTile(
                   onLongPress: () {
-                    Get.find<TaskController>().tasks.removeAt(index);
+                    Get.defaultDialog(
+                      textConfirm: 'Yes',
+                      confirmTextColor: Colors.white,
+                      textCancel: 'No',
+                      middleText: 'Do You want To delete this Item?',
+                      title: 'Delete',
+                      titleStyle: TextStyle(fontSize: 18, color: Colors.red),
+                      onConfirm: () {
+                        Get.find<TaskController>().tasks.removeAt(index);
+                        Get.back();
+                      },
+                    );
                   },
                   title: Text(task.taskTitle ?? ''),
                   subtitle: Text(task.taskSubtitle ?? ''),
@@ -131,14 +142,23 @@ class TopSectionWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Get.defaultDialog(
+                        title: 'Exit',
+                        middleText: 'Do You Want To Exit?',
+                        confirmTextColor: Colors.white,
+                        onConfirm: () {
+                          SystemNavigator.pop();
+                        });
+                  },
                   icon: const Icon(
                     Icons.arrow_back_ios,
                     color: Colors.white,
                   ),
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                  },
                   icon: Icon(Icons.menu, color: Colors.white),
                 ),
               ],

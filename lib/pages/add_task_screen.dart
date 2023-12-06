@@ -44,6 +44,18 @@ class MyButton extends StatelessWidget {
           backgroundColor: kLightBlueColor,
         ),
         onPressed: () {
+          if (!Get.find<TextFieldController>().taskTitle!.text.isNotEmpty) {
+            Get.defaultDialog(
+              middleText: 'Please Add your Planning!!!',
+              title: 'Warning',
+              onConfirm: () => Get.back(),
+              textConfirm: 'Ok',
+              confirmTextColor: Colors.white,
+              titleStyle: TextStyle(color: Colors.red),
+            );
+            return;
+          }
+
           if (Get.find<TaskController>().isEditing) {
             //ویرایش کردن
             int index = Get.find<TaskController>().index;
@@ -64,7 +76,6 @@ class MyButton extends StatelessWidget {
                       Get.find<TextFieldController>().taskSubTitle!.text,
                 ));
           }
-
           Get.back();
         },
         child: Text(Get.find<TaskController>().isEditing ? "Edit" : "Add"),
@@ -109,6 +120,7 @@ class TaskTextField extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20),
       child: TextField(
+        autofocus: true,
         controller: Get.find<TextFieldController>().taskTitle,
         maxLines: 6,
         cursorColor: kLightBlueColor,
